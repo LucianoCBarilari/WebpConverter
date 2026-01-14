@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace MediaProcessorLibrary.Infrastructure.Helpers
+namespace MediaProcessorLibrary.Common.Helpers
 {
     public class Helper
     {
