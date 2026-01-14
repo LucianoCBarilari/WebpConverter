@@ -1,10 +1,11 @@
 ﻿
 
 using MediaProcessorLibrary.Application.Interfaces;
+using MediaProcessorLibrary.Domain.Enums;
 
 namespace MediaProcessorLibrary.Infrastructure.FileSystem
 {
-    public class DirectoryServices : IDirectoryServices
+    public class DirectoryService : IDirectoryService
     {
         /// <summary>
         /// Lists subfolders within a specified folder, returning a dictionary where keys are folder names and values are their full paths.

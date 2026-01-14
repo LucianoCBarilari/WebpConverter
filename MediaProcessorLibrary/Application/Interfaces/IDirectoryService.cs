@@ -1,8 +1,8 @@
-﻿using MediaProcessorLibrary.Infrastructure.FileSystem;
+﻿using MediaProcessorLibrary.Domain.Enums;
 
 namespace MediaProcessorLibrary.Application.Interfaces
 {
-    public interface IDirectoryServices
+    public interface IDirectoryService
     {
         public FolderResult CreateFolder(string folderLocation, string folderName);
         public FolderResult DeleteFolder(string folderLocation, string folderName);

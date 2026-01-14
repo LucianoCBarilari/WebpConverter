@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MediaProcessorLibrary.Infrastructure.FileSystem
+namespace MediaProcessorLibrary.Domain.Enums
 {
     public enum FolderResult
     {
