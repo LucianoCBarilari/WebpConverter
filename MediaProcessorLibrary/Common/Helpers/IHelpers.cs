@@ -9,5 +9,5 @@ namespace MediaProcessorLibrary.Common.Helpers
     public interface IHelpers
     {
         public string GenerateFileName(string baseName);
-    }
+    } 
 }
