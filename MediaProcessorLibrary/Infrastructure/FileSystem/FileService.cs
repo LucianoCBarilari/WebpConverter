@@ -1,4 +1,5 @@
-﻿using MediaProcessorLibrary.Domain.Enums;
+﻿using MediaProcessorLibrary.Application.Interfaces;
+using MediaProcessorLibrary.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MediaProcessorLibrary.Infrastructure.FileSystem
 {
-    public class FileService
+    public class FileService : IFileService
     {
 
         /// <summary>
@@ -102,5 +103,30 @@ namespace MediaProcessorLibrary.Infrastructure.FileSystem
             File.Delete(fullPath);
             return FileResult.Deleted;
         }
+        public async Task<FileResult> SaveAsync(Stream content, string fullPath)
+        {
+            if (content == null || string.IsNullOrWhiteSpace(fullPath))
+                return FileResult.NotFound;
+
+            try
+            {
+                var directory = Path.GetDirectoryName(fullPath);
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+
+                if (content.CanSeek)
+                    content.Position = 0;
+
+                using var fileStream = File.Create(fullPath);
+                await content.CopyToAsync(fileStream);
+
+                return FileResult.Created;
+            }
+            catch
+            {
+                return FileResult.Error;
+            }
+        }
+
     }
 }

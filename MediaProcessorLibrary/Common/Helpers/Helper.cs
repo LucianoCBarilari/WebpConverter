@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace MediaProcessorLibrary.Common.Helpers
 {
-    public class Helper
+    public class Helper : IHelpers
     {
         public string GenerateFileName(string baseName)
         {

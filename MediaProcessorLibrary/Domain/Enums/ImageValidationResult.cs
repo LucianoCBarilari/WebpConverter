@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace MediaProcessorLibrary.Domain.Enums
 {
-    public enum FileResult
+    public enum ImageValidationResult
     {
-        Created,
-        Deleted,
-        FileExist,
-        PathEmpty,
-        FileNameEmpty,
-        NotFound,
+        Valid,
+        Empty,
+        Corrupted,
+        InvalidDimensions,
+        TooLarge,
         Error
     }
 }

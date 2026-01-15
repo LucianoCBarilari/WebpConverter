@@ -13,6 +13,7 @@ namespace MediaProcessorLibrary.Domain.Enums
             FolderExist,
             PathEmpty, 
             FolderNameEmpty,
-            NotFound
+            NotFound,
+            Error
     }
 }
