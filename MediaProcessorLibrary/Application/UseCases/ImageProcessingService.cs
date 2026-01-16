@@ -1,5 +1,6 @@
 ﻿using MediaProcessorLibrary.Application.ImageProcessing;
 using MediaProcessorLibrary.Application.Interfaces;
+using MediaProcessorLibrary.Application.Results;
 using MediaProcessorLibrary.Common.Helpers;
 using MediaProcessorLibrary.Domain.Enums;
 
@@ -27,37 +28,71 @@ namespace MediaProcessorLibrary.Application.UseCases
             _FormatCompress = formatCompress;
             _Helper = helper;
         }
-        public async Task<ImageProcessingResult> ImageProcessAsync(ImageProcessingRequest request)
+        public async Task<Result<string>> ImageProcessAsync(ImageProcessingRequest request)
         {
             if (request?.ImageStream == null)
-                return ImageProcessingResult.InvalidInput;
+                return Result<string>.Fail(ErrorCode.InvalidStream);
 
-            var validation = _ImageValidator.Validate(
+            // Validación de imagen
+            var validationResult = _ImageValidator.Validate(
                 request.ImageStream,
                 request.MaxWidth,
                 request.MaxHeight,
                 request.MaxSizeBytes);
 
-            if (validation != ImageValidationResult.Valid)
-                return ImageProcessingResult.InvalidImage;
+            if (!validationResult.IsSuccess)
+                return Result<string>.Fail(validationResult.Error ?? ErrorCode.InvalidImage);
 
-            if (request.ImageStream.CanSeek)
-                request.ImageStream.Position = 0;
+            try
+            {
+                // Reset del stream si es posible
+                if (request.ImageStream.CanSeek)
+                    request.ImageStream.Position = 0;
 
-            using  var compressedStream = await _FormatCompress.ConvertToWebpAsync(
-                request.ImageStream,
-                request.Quality);
+                // Convertir a WebP
+                var convertResult = await _FormatCompress.ConvertToWebpAsync(
+                    request.ImageStream,
+                    request.Quality);
 
-            _Directory.FolderExist(request.OutputDirectory);
+                if (!convertResult.IsSuccess || convertResult.Value == null)
+                    return Result<string>.Fail(convertResult.Error ?? ErrorCode.CorruptedImage);
 
-            var generatedName = _Helper.GenerateFileName(request.OutputFileName);
+                var compressedStream = convertResult.Value;
 
-            var fullPath = Path.Combine(request.OutputDirectory,$"{generatedName}.webp");
+                // Crear carpeta si no existe
+                if (!_Directory.FolderExist(request.OutputDirectory))
+                {
+                    var createDirectoryResult = _Directory.CreateFolder(Path.GetDirectoryName(request.OutputDirectory) ?? "", Path.GetFileName(request.OutputDirectory));
+                    if (!createDirectoryResult.IsSuccess)
+                        return Result<string>.Fail(createDirectoryResult.Error ?? ErrorCode.Unexpected);
+                }
 
-            await _File.SaveAsync(compressedStream, fullPath);
+                // Generar nombre de archivo
+                var generatedName = _Helper.GenerateFileName(request.OutputFileName);
+                var fullPath = Path.Combine(request.OutputDirectory, $"{generatedName}.webp");
 
-            return ImageProcessingResult.Success;
+                // Guardar archivo
+                var saveResult = await _File.SaveAsync(compressedStream, fullPath);
+
+                if (!saveResult.IsSuccess)
+                    return Result<string>.Fail(saveResult.Error ?? ErrorCode.Unexpected);
+
+                return Result<string>.Ok(fullPath, Operation.Saved);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Result<string>.Fail(ErrorCode.Unauthorized);
+            }
+            catch (IOException)
+            {
+                return Result<string>.Fail(ErrorCode.IOError);
+            }
+            catch
+            {
+                return Result<string>.Fail(ErrorCode.Unexpected);
+            }
         }
+
 
     }
 }

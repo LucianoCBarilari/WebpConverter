@@ -1,31 +1,45 @@
-﻿using SixLabors.ImageSharp.Formats.Webp;
+﻿using MediaProcessorLibrary.Application.Interfaces;
+using MediaProcessorLibrary.Application.Results;
 using SixLabors.ImageSharp;
-using MediaProcessorLibrary.Application.Interfaces;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace MediaProcessorLibrary.Infrastructure.ImageConversion
 {
     public class FormatCompress : IFormatCompress
     {
-        public async Task<Stream> ConvertToWebpAsync(Stream input, int quality)
+        public async Task<Result<Stream>> ConvertToWebpAsync(Stream input, int quality)
         {
-            if (input.CanSeek)
-                input.Position = 0;
-
-            using Image image = await Image.LoadAsync(input);
-
-            var encoder = new WebpEncoder
+            try
             {
-                Quality = quality,
-                FileFormat = WebpFileFormatType.Lossy
-            };
+                var decoderOptions = new DecoderOptions
+                {
+                    Configuration = Configuration.Default,
+                    SkipMetadata = true
+                };
 
-            var output = new MemoryStream();
-            await image.SaveAsync(output, encoder);
+                using Image image = await Image.LoadAsync(decoderOptions, input);
 
-            output.Position = 0; // MUY IMPORTANTE
+                var encoder = new WebpEncoder
+                {
+                    Quality = quality,
+                    FileFormat = WebpFileFormatType.Lossy,
+                    Method = WebpEncodingMethod.Fastest
+                };
 
-            return output;
+                var output = new MemoryStream();
+                await image.SaveAsync(output, encoder);
+
+                output.Position = 0;
+                return Result<Stream>.Ok(output, Operation.Converted);
+            }
+            catch
+            {
+                return Result<Stream>.Fail(ErrorCode.CorruptedImage);
+            }
         }
+
+
     }
 
 }
