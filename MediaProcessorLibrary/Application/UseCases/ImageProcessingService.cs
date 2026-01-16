@@ -61,7 +61,11 @@ namespace MediaProcessorLibrary.Application.UseCases
 
                 // Crear carpeta si no existe
                 if (!_Directory.FolderExist(request.OutputDirectory))
-                    _Directory.CreateFolder(Path.GetDirectoryName(request.OutputDirectory) ?? "", Path.GetFileName(request.OutputDirectory));
+                {
+                    var createDirectoryResult = _Directory.CreateFolder(Path.GetDirectoryName(request.OutputDirectory) ?? "", Path.GetFileName(request.OutputDirectory));
+                    if (!createDirectoryResult.IsSuccess)
+                        return Result<string>.Fail(createDirectoryResult.Error ?? ErrorCode.Unexpected);
+                }
 
                 // Generar nombre de archivo
                 var generatedName = _Helper.GenerateFileName(request.OutputFileName);

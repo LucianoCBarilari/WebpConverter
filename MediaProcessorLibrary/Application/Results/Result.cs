@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MediaProcessorLibrary.Application.Results
 {
-    public class Result
+    public readonly struct Result
     {
         public bool IsSuccess { get; }
         public Operation? Operation { get; }
@@ -25,7 +25,7 @@ namespace MediaProcessorLibrary.Application.Results
         public static Result Fail(ErrorCode error)
             => new(false, null, error);
     }
-    public class Result<T>
+    public readonly struct Result<T>
     {
         public bool IsSuccess { get; }
         public T? Value { get; }
