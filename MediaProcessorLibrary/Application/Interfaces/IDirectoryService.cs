@@ -5,11 +5,11 @@ namespace MediaProcessorLibrary.Application.Interfaces
 {
     public interface IDirectoryService
     {
-        public Result CreateFolder(string folderLocation, string folderName);
-        public Result DeleteFolder(string folderLocation, string folderName);
-        public Dictionary<string, string> ListFolders(string folderName);
-        public string GetCurrentFolderPath(string folderName);
-        public bool FolderExist(string folderName);
+        Result CreateFolder(string folderLocation, string folderName);
+        Result DeleteFolder(string folderLocation, string folderName);
+        Dictionary<string, string> ListFolders(string folderName);
+        string GetCurrentFolderPath(string folderName);
+        bool FolderExist(string folderName);
         
     }
 }

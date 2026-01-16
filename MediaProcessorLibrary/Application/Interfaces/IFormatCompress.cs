@@ -1,8 +1,10 @@
-﻿namespace MediaProcessorLibrary.Application.Interfaces
+﻿using MediaProcessorLibrary.Application.Results;
+
+namespace MediaProcessorLibrary.Application.Interfaces
 {
     public interface IFormatCompress
     {
-        Task<Stream> ConvertToWebpAsync(Stream input, int quality);
+        Task<Result<Stream>> ConvertToWebpAsync(Stream input, int quality);
     }
 
 }

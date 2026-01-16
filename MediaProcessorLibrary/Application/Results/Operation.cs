@@ -11,6 +11,7 @@ namespace MediaProcessorLibrary.Application.Results
         Created,
         Deleted,
         Converted,
-        Saved
+        Saved,
+        Validated
     }
 }

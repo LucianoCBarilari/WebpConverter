@@ -1,9 +1,10 @@
 ﻿using MediaProcessorLibrary.Application.ImageProcessing;
+using MediaProcessorLibrary.Application.Results;
 
 namespace MediaProcessorLibrary.Application.UseCases
 {
     public interface IImageProcessingService
     {
-        public Task<ImageProcessingResult> ImageProcessAsync(ImageProcessingRequest request);
+        Task<Result<string>> ImageProcessAsync(ImageProcessingRequest request);
     }
 }

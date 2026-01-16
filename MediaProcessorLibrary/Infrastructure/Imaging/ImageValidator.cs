@@ -1,4 +1,5 @@
 ﻿using MediaProcessorLibrary.Application.Interfaces;
+using MediaProcessorLibrary.Application.Results;
 using MediaProcessorLibrary.Domain.Enums;
 using SixLabors.ImageSharp;
 
@@ -6,38 +7,39 @@ namespace MediaProcessorLibrary.Infrastructure.Imaging
 {
     public class ImageValidator : IImageValidator
     {
-            public ImageValidationResult Validate(
-                                                    Stream imageStream,
-                                                    int maxWidth,
-                                                    int maxHeight,
-                                                    long maxSizeBytes)
+        public Result Validate(
+                                Stream imageStream,
+                                int maxWidth,
+                                int maxHeight,
+                                long maxSizeBytes)
+        {
+            if (imageStream == null || imageStream.Length == 0)
+                return Result.Fail(ErrorCode.InvalidStream);
+
+            if (imageStream.Length > maxSizeBytes)
+                return Result.Fail(ErrorCode.ImageTooLarge);
+
+            try
             {
-                if (imageStream == null || imageStream.Length == 0)
-                    return ImageValidationResult.Empty;
+                if (imageStream.CanSeek)
+                    imageStream.Position = 0;
 
-                if (imageStream.Length > maxSizeBytes)
-                    return ImageValidationResult.TooLarge;
+                var info = Image.Identify(imageStream);
 
-                try
-                {
-                    if (imageStream.CanSeek)
-                        imageStream.Position = 0;
+                if (info == null)
+                    return Result.Fail(ErrorCode.CorruptedImage);
 
-                    var info = Image.Identify(imageStream);
+                if (info.Width > maxWidth || info.Height > maxHeight)
+                    return Result.Fail(ErrorCode.InvalidImage);
 
-                    if (info == null)
-                        return ImageValidationResult.Corrupted;
-
-                    if (info.Width > maxWidth || info.Height > maxHeight)
-                        return ImageValidationResult.InvalidDimensions;
-
-                    return ImageValidationResult.Valid;
-                }
-                catch
-                {
-                    return ImageValidationResult.Corrupted;
-                }
+                return Result.Ok(Operation.Validated);
             }
+            catch
+            {
+                return Result.Fail(ErrorCode.CorruptedImage);
+            }
+        }
+
 
     }
 }
