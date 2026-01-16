@@ -1,6 +1,7 @@
 ﻿
 
 using MediaProcessorLibrary.Application.Interfaces;
+using MediaProcessorLibrary.Application.Results;
 using MediaProcessorLibrary.Domain.Enums;
 
 namespace MediaProcessorLibrary.Infrastructure.FileSystem
@@ -34,21 +35,36 @@ namespace MediaProcessorLibrary.Infrastructure.FileSystem
         /// <param name="folderLocation">The path where the new folder should be created.</param>
         /// <param name="folderName">The name of the new folder.</param>
         /// <returns>A <see cref="FolderResult"/> indicating the outcome of the operation.</returns>
-        public FolderResult CreateFolder(string folderLocation, string folderName)
+        public Result CreateFolder(string folderLocation, string folderName)
         {
             if (string.IsNullOrWhiteSpace(folderLocation))
-                return FolderResult.PathEmpty;
+                return Result.Fail(ErrorCode.PathEmpty);
 
             if (string.IsNullOrWhiteSpace(folderName))
-                return FolderResult.FolderNameEmpty;
+                return Result.Fail(ErrorCode.FolderNameEmpty);
 
             string newFolderPath = Path.Combine(folderLocation, folderName);
 
-            if (FolderExist(newFolderPath))
-                return FolderResult.FolderExist;
+            if (Directory.Exists(newFolderPath))
+                return Result.Fail(ErrorCode.AlreadyExists);
 
-            Directory.CreateDirectory(newFolderPath);
-            return FolderResult.Created;
+            try
+            {
+                Directory.CreateDirectory(newFolderPath);
+                return Result.Ok(Operation.Created);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Result.Fail(ErrorCode.Unauthorized);
+            }
+            catch (IOException)
+            {
+                return Result.Fail(ErrorCode.IOError);
+            }
+            catch
+            {
+                return Result.Fail(ErrorCode.Unexpected);
+            }
         }
         /// <summary>
         /// Gets the full path for a folder relative to the current working directory.
@@ -77,22 +93,36 @@ namespace MediaProcessorLibrary.Infrastructure.FileSystem
         /// <param name="folderLocation">The path where the folder to be deleted is located.</param>
         /// <param name="folderName">The name of the folder to delete.</param>
         /// <returns>A <see cref="FolderResult"/> indicating the outcome of the delete operation.</returns>
-        public FolderResult DeleteFolder(string folderLocation, string folderName)
+        public Result DeleteFolder(string folderLocation, string folderName)
         {
             if (string.IsNullOrWhiteSpace(folderLocation))
-                return FolderResult.PathEmpty;
+                return Result.Fail(ErrorCode.PathEmpty);
 
             if (string.IsNullOrWhiteSpace(folderName))
-                return FolderResult.FolderNameEmpty;
+                return Result.Fail(ErrorCode.FolderNameEmpty);
 
-            string newFolderPath = Path.Combine(folderLocation, folderName);
+            string folderPath = Path.Combine(folderLocation, folderName);
 
-            if (!FolderExist(newFolderPath))
-                return FolderResult.NotFound;
+            if (!Directory.Exists(folderPath))
+                return Result.Fail(ErrorCode.NotFound);
 
-            Directory.Delete(newFolderPath, true);
-            return FolderResult.Deleted;
+            try
+            {
+                Directory.Delete(folderPath, true);
+                return Result.Ok(Operation.Deleted);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Result.Fail(ErrorCode.Unauthorized);
+            }
+            catch (IOException)
+            {
+                return Result.Fail(ErrorCode.IOError);
+            }
+            catch
+            {
+                return Result.Fail(ErrorCode.Unexpected);
+            }
         }
-
     }
 }

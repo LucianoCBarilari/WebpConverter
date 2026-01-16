@@ -1,10 +1,6 @@
 ﻿using MediaProcessorLibrary.Application.Interfaces;
+using MediaProcessorLibrary.Application.Results;
 using MediaProcessorLibrary.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaProcessorLibrary.Infrastructure.FileSystem
 {
@@ -64,22 +60,34 @@ namespace MediaProcessorLibrary.Infrastructure.FileSystem
         /// <param name="fileName">The name of the file.</param>
         /// <param name="fileExtension">The file extension (e.g., ".txt", ".jpg").</param>
         /// <returns>Result of the file creation operation.</returns>
-        public FileResult CreateFile(string folderPath, string fileName, string fileExtension)
+        public Result CreateFile(string folderPath, string fileName, string fileExtension)
         {
             if (string.IsNullOrWhiteSpace(folderPath))
-                return FileResult.PathEmpty;
+                return Result.Fail(ErrorCode.PathEmpty);
 
             if (string.IsNullOrWhiteSpace(fileName))
-                return FileResult.FileNameEmpty;
+                return Result.Fail(ErrorCode.FolderNameEmpty);
 
             string fullPath = Path.Combine(folderPath, $"{fileName}{fileExtension}");
 
             if (File.Exists(fullPath))
-                return FileResult.FileExist;
+                return Result.Fail(ErrorCode.AlreadyExists);
 
-            File.Create(fullPath).Dispose(); 
-            return FileResult.Created;
+            try
+            {
+                using var _ = File.Create(fullPath);
+                return Result.Ok(Operation.Created);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Result.Fail(ErrorCode.Unauthorized);
+            }
+            catch (IOException)
+            {
+                return Result.Fail(ErrorCode.IOError);
+            }
         }
+
 
         /// <summary>
         /// Deletes a specified file.
@@ -87,26 +95,47 @@ namespace MediaProcessorLibrary.Infrastructure.FileSystem
         /// <param name="folderPath">The path to the folder containing the file.</param>
         /// <param name="fileName">The name of the file to delete.</param>
         /// <returns>A <see cref="FileResult"/> indicating the outcome of the delete operation.</returns>
-        public FileResult DeleteFile(string folderPath, string fileName)
+        public Result DeleteFile(string folderPath, string fileName)
         {
             if (string.IsNullOrWhiteSpace(folderPath))
-                return FileResult.PathEmpty;
+                return Result.Fail(ErrorCode.PathEmpty);
 
             if (string.IsNullOrWhiteSpace(fileName))
-                return FileResult.FileNameEmpty;
+                return Result.Fail(ErrorCode.NameEmpty);
 
             string fullPath = Path.Combine(folderPath, fileName);
 
             if (!File.Exists(fullPath))
-                return FileResult.NotFound;
+                return Result.Fail(ErrorCode.NotFound);
 
-            File.Delete(fullPath);
-            return FileResult.Deleted;
+            try
+            {
+                File.Delete(fullPath);
+                return Result.Ok(Operation.Deleted);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Result.Fail(ErrorCode.Unauthorized);
+            }
+            catch (IOException)
+            {
+                return Result.Fail(ErrorCode.IOError);
+            }
         }
-        public async Task<FileResult> SaveAsync(Stream content, string fullPath)
+
+        /// <summary>
+        /// Asynchronously saves a stream's content to a specified file path.
+        /// </summary>
+        /// <param name="content">The stream to save.</param>
+        /// <param name="fullPath">The full path where the file will be saved.</param>
+        /// <returns>A <see cref="Result"/> indicating the outcome of the save operation.</returns>
+        public async Task<Result> SaveAsync(Stream content, string fullPath)
         {
-            if (content == null || string.IsNullOrWhiteSpace(fullPath))
-                return FileResult.NotFound;
+            if (content == null)
+                return Result.Fail(ErrorCode.InvalidStream);
+
+            if (string.IsNullOrWhiteSpace(fullPath))
+                return Result.Fail(ErrorCode.PathEmpty);
 
             try
             {
@@ -120,13 +149,20 @@ namespace MediaProcessorLibrary.Infrastructure.FileSystem
                 using var fileStream = File.Create(fullPath);
                 await content.CopyToAsync(fileStream);
 
-                return FileResult.Created;
+                return Result.Ok(Operation.Saved);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Result.Fail(ErrorCode.Unauthorized);
+            }
+            catch (IOException)
+            {
+                return Result.Fail(ErrorCode.IOError);
             }
             catch
             {
-                return FileResult.Error;
+                return Result.Fail(ErrorCode.Unexpected);
             }
         }
-
     }
 }
