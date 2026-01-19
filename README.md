@@ -90,3 +90,100 @@ Ejemplos de errores:
 * `IOError`
 
 ---
+
+## Uso en aplicaciones Razor / Blazor
+
+La librería puede utilizarse directamente en aplicaciones **Blazor Web App** o **Blazor Server**, usando `IBrowserFile` como fuente de la imagen.
+
+---
+
+### `_Imports.razor`
+
+Agregar los siguientes `@using` para facilitar el uso en componentes Razor:
+
+```razor
+@using MediaProcessorLibrary.Application
+@using MediaProcessorLibrary.Domain
+@using MediaProcessorLibrary.Application.UseCases
+@using MediaProcessorLibrary.Application.ImageProcessing
+@using MediaProcessorLibrary.Application.Results
+```
+
+---
+
+### Inyección del servicio
+
+En el componente Razor donde se procese la imagen:
+
+```razor
+@inject IImageProcessingService imageProcessingService
+@inject IConfiguration Configuration
+```
+
+---
+
+### Ejemplo completo de implementación
+
+```csharp
+private async Task UploadFile(IBrowserFile file)
+{
+    int maxFileSizeMB = 2 * 1024 * 1024;
+
+    var fullOutputDirectory =
+        Configuration["FileStorageSettings:PhysicalImagePath"];
+   
+    using var browserStream = file.OpenReadStream(maxFileSizeMB);
+    using var memoryStream = new MemoryStream();
+
+    await browserStream.CopyToAsync(memoryStream);
+    memoryStream.Position = 0;
+
+    var request = new ImageProcessingRequest
+    {
+        ImageStream = memoryStream,
+        OutputDirectory = fullOutputDirectory,
+        OutputFileName = "Example",
+        MaxSizeBytes = maxFileSizeMB,
+        Quality = 80,
+        MaxWidth = 2000,
+        MaxHeight = 2000
+    };
+
+    var result = await imageProcessingService.ImageProcessAsync(request);
+
+    if (result.IsSuccess && !string.IsNullOrWhiteSpace(result.Value))
+    {
+        var fileName = Path.GetFileName(result.Value);
+
+        var publicPath =
+            Configuration["FileStorageSettings:PublicImagePath"];
+
+        DefaultImgLarge = $"{publicPath}/{fileName}";
+    }
+    else
+    {
+        var message = result.Error switch
+        {
+            ErrorCode.ImageTooLarge   => "La imagen supera el tamaño permitido.",
+            ErrorCode.InvalidImage    => "La imagen no es válida.",
+            ErrorCode.CorruptedImage  => "La imagen está dañada.",
+            ErrorCode.Unauthorized    => "No tienes permisos para guardar la imagen.",
+            ErrorCode.IOError         => "Error de escritura en disco.",
+            _                         => "Ocurrió un error inesperado."
+        };       
+    }
+
+    await InvokeAsync(StateHasChanged);
+}
+```
+
+---
+
+## Notas importantes
+
+* La librería **no depende de `wwwroot`**
+* La ruta física y la ruta pública se definen vía `appsettings.json`
+* En base de datos debe guardarse **la ruta pública**, no el path físico
+* El consumidor decide cómo exponer las imágenes (UI, API, CDN, etc.)
+
+---
