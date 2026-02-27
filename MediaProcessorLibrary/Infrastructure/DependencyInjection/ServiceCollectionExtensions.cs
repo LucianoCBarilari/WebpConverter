@@ -14,7 +14,7 @@ namespace MediaProcessorLibrary.Infrastructure.DependencyInjection
        this IServiceCollection services)
         {
             services.AddScoped<IImageProcessingService, ImageProcessingService>();
-
+            services.AddScoped<IDeleteImageService, DeleteImageService>();
             services.AddScoped<IDirectoryService, DirectoryService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IImageValidator, ImageValidator>();
