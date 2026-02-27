@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace MediaProcessorLibrary.Application.ImageProcessing
+namespace MediaProcessorLibrary;
+public class ImageProcessingRequest
 {
-    public class ImageProcessingRequest
-    {
-        public Stream ImageStream { get; set; } 
-
-        public int MaxWidth { get; set; }
-        public int MaxHeight { get; set; }
-        public long MaxSizeBytes { get; set; }
-
-        public string OutputDirectory { get; set; } = string.Empty;
-        public string OutputFileName { get; set; } = string.Empty;
-
-        public int Quality { get; init; }
-    }
-
+    [Required]
+    public Stream ImageStream { get; set; } = Stream.Null;
+    [Range(1, 10000)]
+    public int MaxWidth { get; set; }
+    [Range(1, 10000)]
+    public int MaxHeight { get; set; }
+    [Range(1, 104857600)]
+    public long MaxSizeBytes { get; set; }
+    [Required]
+    public string OutputDirectory { get; set; } = string.Empty;
+    [Required]
+    [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Nombre de archivo inválido")]
+    public string OutputFileName { get; set; } = string.Empty;
+    [Range(1, 100)]
+    public int Quality { get; init; } = 80;
 }
