@@ -370,4 +370,5 @@ FodyWeavers.xsd
 .obj/
 .bin/
 
-**/appsettings.Development.Local.json
+appsettings.Development.Local.json
+/MediaProcessorLibrary/appsettings.Development.json
