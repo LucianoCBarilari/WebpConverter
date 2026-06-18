@@ -374,3 +374,4 @@ FodyWeavers.xsd
 contexto_conversacion_parquet.md
 Temp_Parquet/
 /MigrationDataBase/nul
+/MediaProcessorLibrary/appsettings.Development.json
