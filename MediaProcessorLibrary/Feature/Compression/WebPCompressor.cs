@@ -1,7 +1,11 @@
-﻿namespace MediaProcessorLibrary.Compression;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Webp;
+
+namespace MediaProcessorLibrary.Feature.Compression;
 public class WebPCompressor
 {
-    public async Task<Stream> ConvertToWebpAsync(Stream input, int quality)
+        public async Task<Stream> ConvertToWebpAsync(Stream input, int quality)
     {
         var decoderOptions = new DecoderOptions
         {
@@ -26,3 +30,6 @@ public class WebPCompressor
         return output;
     }
 }
+
+
+

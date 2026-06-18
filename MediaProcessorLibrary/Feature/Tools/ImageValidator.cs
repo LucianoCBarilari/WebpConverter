@@ -1,5 +1,7 @@
-﻿namespace MediaProcessorLibrary.Validation;
-public sealed class ImageValidator
+﻿using SixLabors.ImageSharp;
+
+namespace MediaProcessorLibrary.Feature.Tools;
+public class ImageValidator
 {
     /// <summary>
     /// Validates an image stream against size and dimension constraints using the Result Pattern.

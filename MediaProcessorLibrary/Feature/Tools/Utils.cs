@@ -1,4 +1,6 @@
-﻿namespace MediaProcessorLibrary.Storage;
+﻿using System.Text.RegularExpressions;
+
+namespace MediaProcessorLibrary.Feature.Tools;
 
 public class Utils 
 {
@@ -7,7 +9,7 @@ public class Utils
         if (string.IsNullOrWhiteSpace(baseName))
             return string.Empty;
 
-        Regex regex = new Regex(@"[^a-zA-Z0-9_]");
+        Regex regex = new(@"[^a-zA-Z0-9_]");
 
         if (regex.IsMatch(baseName))
             return string.Empty;
