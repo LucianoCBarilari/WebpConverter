@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediaProcessorLibrary.Common.Enums;
+using MediaProcessorLibrary.Common.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MediaProcessorLibrary
+namespace MediaProcessorLibrary.Feature.ProcessImage
 {
     public class ImageProcessingAppService : IImageProcessingAppService
     {

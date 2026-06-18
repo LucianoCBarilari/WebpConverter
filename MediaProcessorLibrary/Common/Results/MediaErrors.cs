@@ -1,4 +1,6 @@
-﻿namespace MediaProcessorLibrary.Domain.Results;
+﻿using MediaProcessorLibrary.Common.Enums;
+
+namespace MediaProcessorLibrary.Common.Results;
 
 public static class MediaErrors
 {

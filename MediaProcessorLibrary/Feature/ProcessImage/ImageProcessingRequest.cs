@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MediaProcessorLibrary;
+namespace MediaProcessorLibrary.Feature.ProcessImage;
 public class ImageProcessingRequest
 {
     [Required]

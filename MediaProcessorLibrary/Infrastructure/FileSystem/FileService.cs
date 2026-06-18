@@ -1,4 +1,7 @@
-﻿namespace MediaProcessorLibrary.Storage;
+﻿using MediaProcessorLibrary.Common.Enums;
+using MediaProcessorLibrary.Common.Results;
+
+namespace MediaProcessorLibrary.Infrastructure.FileSystem;
 
 public class FileService 
 {

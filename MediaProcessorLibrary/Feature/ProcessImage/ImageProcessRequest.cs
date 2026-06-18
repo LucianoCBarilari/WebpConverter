@@ -1,4 +1,4 @@
-﻿namespace MediaProcessorLibrary
+﻿namespace MediaProcessorLibrary.Feature.ProcessImage
 {
     public class ImageProcessRequest
     {

@@ -1,4 +1,6 @@
-﻿namespace MediaProcessorLibrary;
+﻿using MediaProcessorLibrary.Common.Enums;
+
+namespace MediaProcessorLibrary.Common.Results;
 
 public readonly struct ResultMedia
 {

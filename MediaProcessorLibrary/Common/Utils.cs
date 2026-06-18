@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace MediaProcessorLibrary.Feature.Tools;
+namespace MediaProcessorLibrary.Common;
 
 public class Utils 
 {
