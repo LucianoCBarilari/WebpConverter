@@ -1,5 +1,4 @@
-using MediaProcessorLibrary;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.DataProtection;
 using Serilog;
 
 
@@ -9,6 +8,15 @@ Log.Logger = new LoggerConfiguration()
         .CreateBootstrapLogger();
         
 var builder = WebApplication.CreateBuilder(args);
+
+var keysDirectory = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
+if (!Directory.Exists(keysDirectory))
+{
+    Directory.CreateDirectory(keysDirectory);
+}
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
+    .SetApplicationName("MediaProccesing");
 
 // Add services to the container.
 builder.Services.AddOpenApi();
