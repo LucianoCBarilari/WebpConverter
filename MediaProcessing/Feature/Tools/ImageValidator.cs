@@ -1,14 +1,15 @@
-﻿using MediaProcessorLibrary.Common.Enums;
-using MediaProcessorLibrary.Common.Results;
+﻿using MediaProcessing.Common.Enums;
+using MediaProcessing.Common.Results;
 using SixLabors.ImageSharp;
 
-namespace MediaProcessorLibrary.Feature.Tools;
-public class ImageValidator
+namespace MediaProcessing.Feature.Tools;
+
+public static class ImageValidator
 {
     /// <summary>
     /// Validates an image stream against size and dimension constraints using the Result Pattern.
     /// </summary>
-    public ResultMedia Validate(
+    public static ResultMedia Validate(
         Stream imageStream,
         int maxWidth,
         int maxHeight,

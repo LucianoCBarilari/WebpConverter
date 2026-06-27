@@ -1,9 +1,9 @@
-﻿using MediaProcessorLibrary.Common.Enums;
+﻿using MediaProcessing.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MediaProcessorLibrary.Feature.ProcessImage;
+namespace MediaProcessing.Feature.ProcessImage;
 
 [ApiController]
 [Route("v2/api/image-processor")]

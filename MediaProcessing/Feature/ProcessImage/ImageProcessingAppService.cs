@@ -1,8 +1,8 @@
-﻿using MediaProcessorLibrary.Common.Enums;
-using MediaProcessorLibrary.Common.Results;
-using MediaProcessorLibrary.Feature.DeleteImage;
+﻿using MediaProcessing.Common.Enums;
+using MediaProcessing.Common.Results;
+using MediaProcessing.Feature.DeleteImage;
 
-namespace MediaProcessorLibrary.Feature.ProcessImage;
+namespace MediaProcessing.Feature.ProcessImage;
 
 public class ImageProcessingAppService : IImageProcessingAppService
 {

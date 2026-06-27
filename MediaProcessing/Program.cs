@@ -1,4 +1,7 @@
+using MediaProcessing.Feature.DeleteImage;
+using MediaProcessing.Feature.ProcessImage;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 
 
@@ -18,6 +21,17 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
     .SetApplicationName("MediaProccesing");
 
+// Configure Forwarded Headers for Nginx
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+builder.Services.AddScoped<DeleteImageHandler>();
+builder.Services.AddScoped<IImageProcessingAppService, ImageProcessingAppService>();
+builder.Services.AddScoped<IImageProcessingService,ImageProcessingService>();
 // Add services to the container.
 builder.Services.AddOpenApi();
 
@@ -65,6 +79,10 @@ app.UseHttpsRedirection();
 .WithName("ProcessImage")
 .WithOpenApi()
 .DisableAntiforgery();*/
+
+
+app.UseForwardedHeaders();
+app.UseExceptionHandler();
 
 app.Run();
 

@@ -1,6 +1,6 @@
-﻿using MediaProcessorLibrary.Common.Results;
+﻿using MediaProcessing.Common.Results;
 
-namespace MediaProcessorLibrary.Feature.ProcessImage
+namespace MediaProcessing.Feature.ProcessImage
 {
     public interface IImageProcessingAppService
     {

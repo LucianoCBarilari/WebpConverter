@@ -2,7 +2,7 @@
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Webp;
 
-namespace MediaProcessorLibrary.Infrastructure.Compression;
+namespace MediaProcessing.Infrastructure.Compression;
 public class WebPCompressor
 {
         public async Task<Stream> ConvertToWebpAsync(Stream input, int quality)

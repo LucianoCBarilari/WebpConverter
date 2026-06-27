@@ -1,7 +1,7 @@
-﻿using MediaProcessorLibrary.Common.Enums;
-using MediaProcessorLibrary.Common.Results;
+﻿using MediaProcessing.Common.Enums;
+using MediaProcessing.Common.Results;
 
-namespace MediaProcessorLibrary.Infrastructure.FileSystem;
+namespace MediaProcessing.Infrastructure.FileSystem;
 
 public class DirectoryService 
 {

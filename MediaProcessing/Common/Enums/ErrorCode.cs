@@ -1,4 +1,4 @@
-﻿namespace MediaProcessorLibrary.Common.Enums;
+﻿namespace MediaProcessing.Common.Enums;
 
 public enum ErrorCode
 {

@@ -1,8 +1,8 @@
-﻿using MediaProcessorLibrary.Common.Enums;
-using MediaProcessorLibrary.Common.Results;
-using MediaProcessorLibrary.Infrastructure.FileSystem;
+﻿using MediaProcessing.Common.Enums;
+using MediaProcessing.Common.Results;
+using MediaProcessing.Infrastructure.FileSystem;
 
-namespace MediaProcessorLibrary.Feature.DeleteImage;
+namespace MediaProcessing.Feature.DeleteImage;
 
 public class DeleteImageHandler(FileService fileService)
 {

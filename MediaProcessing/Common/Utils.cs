@@ -1,10 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace MediaProcessorLibrary.Common;
+namespace MediaProcessing.Common;
 
-public class Utils 
+public static class Utils 
 {
-    public string GenerateFileName(string baseName)
+    public static string GenerateFileName(string baseName)
     {
         if (string.IsNullOrWhiteSpace(baseName))
             return string.Empty;

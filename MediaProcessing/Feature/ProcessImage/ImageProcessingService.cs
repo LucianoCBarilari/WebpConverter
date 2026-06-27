@@ -1,18 +1,16 @@
-﻿using MediaProcessorLibrary.Common;
-using MediaProcessorLibrary.Common.Enums;
-using MediaProcessorLibrary.Common.Results;
-using MediaProcessorLibrary.Feature.Tools;
-using MediaProcessorLibrary.Infrastructure.Compression;
-using MediaProcessorLibrary.Infrastructure.FileSystem;
+﻿using MediaProcessing.Common;
+using MediaProcessing.Common.Enums;
+using MediaProcessing.Common.Results;
+using MediaProcessing.Feature.Tools;
+using MediaProcessing.Infrastructure.Compression;
+using MediaProcessing.Infrastructure.FileSystem;
 
-namespace MediaProcessorLibrary.Feature.ProcessImage;
+namespace MediaProcessing.Feature.ProcessImage;
 
 public class ImageProcessingService(
         FileService fileService,
         DirectoryService directoryService,
-        ImageValidator imageValidator,
-        WebPCompressor webPCompressor,
-        Utils Utility) :IImageProcessingService
+        WebPCompressor webPCompressor) :IImageProcessingService
 {
     /// <summary>
     /// Processes an image: validates, compresses to WebP, and saves it to the specified directory.
@@ -24,7 +22,7 @@ public class ImageProcessingService(
         if (request?.ImageStream == null)
             return ResultMedia<string>.Fail(ErrorCode.InvalidStream);
 
-        var validation = imageValidator.Validate(
+        var validation = ImageValidator.Validate(
             request.ImageStream,
             request.MaxWidth,
             request.MaxHeight,
@@ -42,7 +40,7 @@ public class ImageProcessingService(
 
         directoryService.FolderExist(request.OutputDirectory);
 
-        var generatedName = Utility.GenerateFileName(request.OutputFileName);
+        var generatedName = Utils.GenerateFileName(request.OutputFileName);
 
         if (string.IsNullOrEmpty(generatedName))
             return ResultMedia<string>.Fail(ErrorCode.FileNameEmpty);

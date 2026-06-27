@@ -1,4 +1,4 @@
-﻿namespace MediaProcessorLibrary.Common.Results;
+﻿namespace MediaProcessing.Common.Results;
 
 public enum Operation
 {
