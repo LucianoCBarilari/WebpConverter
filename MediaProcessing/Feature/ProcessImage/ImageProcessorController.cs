@@ -1,19 +1,26 @@
-﻿using MediaProcessing.Common.Enums;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using MediaProcessing.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MediaProcessing.Feature.ProcessImage;
 
-[ApiController]
-[Route("v2/api/image-processor")]
-public class ImageProcessorController(IImageProcessingAppService imgProcessing) : ControllerBase
+public class CompressImageHttpRequest
 {
-    [Authorize(Policy = "CanWrite")]
+    [FromForm]
+    public IFormFile File { get; set; } = default!;
+
+    [FromForm]
+    public string? FileName { get; set; }
+}
+
+[ApiController]
+[Route("/api/image-processor")]
+[Consumes("multipart/form-data")]
+public class ImageProcessorController(ProcessImageHandler handler) : ControllerBase
+{
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] ImageProcessRequest request)
+    public async Task<IActionResult> CompressImageAsync([FromForm] CompressImageHttpRequest request)
     {
-        if (request.File == null)
+        if (request?.File == null)
         {
             return Problem(
                 statusCode: StatusCodes.Status400BadRequest,
@@ -21,20 +28,18 @@ public class ImageProcessorController(IImageProcessingAppService imgProcessing) 
                 detail: "File is required.");
         }
 
-        const int maxFileSize = 2 * 1024 * 1024;
-        var fileName = string.IsNullOrWhiteSpace(request.FileName)
-            ? Path.GetFileNameWithoutExtension(request.File.FileName)
-            : request.FileName;
-        var quality = 80;
+        using var stream = request.File.OpenReadStream();
+        var command = new ImageToProcess(stream, request.FileName);
 
-        var result = await imgProcessing.ProcessImage(request.File, maxFileSize, fileName, request.ImageSizeId, quality);
+        var result = await handler.HandleAsync(command);
 
-        if (result.IsSuccess && !string.IsNullOrWhiteSpace(result.Value!))
+        if (result.IsSuccess && !string.IsNullOrWhiteSpace(result.Value))
         {
             return Ok(result.Value);
         }
 
         var error = result.Error ?? ErrorCode.Unexpected;
+
         return error switch
         {
             ErrorCode.ImageTooLarge => Problem(
@@ -64,4 +69,3 @@ public class ImageProcessorController(IImageProcessingAppService imgProcessing) 
         };
     }
 }
-
