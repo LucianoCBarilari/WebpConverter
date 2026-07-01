@@ -1,4 +1,4 @@
-﻿using MediaProcessing.Common.Enums;
+using MediaProcessing.Common.Enums;
 using MediaProcessing.Common.Results;
 using System.Text.RegularExpressions;
 
@@ -172,9 +172,8 @@ public class FileService
 
         Regex regex = new(@"[^a-zA-Z0-9_]");
 
-        if (regex.IsMatch(baseName))
-            return string.Empty;
+        string cleanName = regex.Replace(baseName, "-");
 
-        return $"{baseName}_{DateTime.Now:yyyyMMdd_HHmmss}";
+        return $"{cleanName}_{DateTime.Now:yyyyMMdd_HHmmss}";
     }
 }
