@@ -175,6 +175,6 @@ public class FileService : IFileService
         string cleanName = regex.Replace(baseName, "-");
 
 
-        return $"{cleanName}_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..6]}";
+        return $"{cleanName}_{DateTime.UtcNow:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..6]}";
     }
 }

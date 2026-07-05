@@ -1,4 +1,4 @@
-﻿namespace WebpConverter.Common.Enums;
+namespace WebpConverter.Common.Enums;
 
 public enum ErrorCode
 {
@@ -10,7 +10,6 @@ public enum ErrorCode
 
 
     ImageTooLarge,
-    InvalidDimensions,
     CorruptedImage,
     InvalidImage,
 

@@ -3,25 +3,6 @@ using WebpConverter.Common.Enums;
 using WebpConverter.Common.Results;
 
 namespace WebpConverter.Feature.ProcessImage;
-// TODO: [Removal/Validation] Remove all logic related to image dimension validation.
-// The parameters and checks for `maxWidth` and `maxHeight` should be fully deleted 
-// from the class/method signature and implementation.
-/* 
- * Reverting previous requirements change regarding image dimensions. 
- * The classes, properties (`int maxWidth`, `int maxHeight`), and all associated 
- * validation checks related to maximum width and height are now deemed unnecessary 
- * and must be removed to streamline the code base.
- */
-/**
- * Architectural Refactoring: Delegation of Responsibility.
- * 
- * Action: Move all business rules, configuration reads (`maxFileSize`, `quality`),
- * and complex validation logic out of this controller method.
- * 
- * Why: To adhere to Separation of Concerns (SoC). The Controller should only handle 
- * HTTP requests/responses (API boundaries). All domain-specific validation must live 
- * in a dedicated service layer (e.g., `IImageCompressionService`). This keeps the controller clean, focused on flow control, and highly testable.
- */
 public static class ImageValidator
 {
     /// <summary>

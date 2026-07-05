@@ -19,9 +19,15 @@ jobs:
         
     - name: Restore dependencies
       run: dotnet restore WebpConverter/WebpConverter.csproj
+
+    - name: Restore test dependencies
+      run: dotnet restore WebpConverter.Tests/WebpConverter.Tests.csproj
       
     - name: Build
       run: dotnet build WebpConverter/WebpConverter.csproj --configuration Release --no-restore
+
+    - name: Run Tests
+      run: dotnet test WebpConverter.Tests/WebpConverter.Tests.csproj --configuration Release --no-build --verbosity normal
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
