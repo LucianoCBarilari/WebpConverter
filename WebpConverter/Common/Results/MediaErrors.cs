@@ -8,7 +8,6 @@ public static class MediaErrors
     {
         ErrorCode.InvalidStream => "The provided image stream is null or empty.",
         ErrorCode.ImageTooLarge => "The image exceeds the maximum allowed file size.",
-        ErrorCode.InvalidDimensions => "The image dimensions exceed the allowed limits.",
         ErrorCode.CorruptedImage => "The image data appears to be corrupted or invalid.",
         ErrorCode.InvalidImage => "The file provided is not a supported image format.",
 
