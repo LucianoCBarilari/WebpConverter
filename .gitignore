@@ -373,4 +373,4 @@ FodyWeavers.xsd
 appsettings.Development.Local.json
 /MediaProcessorLibrary/appsettings.Development.json
 /MediaProcessing/appsettings.Development.json
-/MediaProcessing/DataProtection-Keys
+DataProtection-Keys/*
