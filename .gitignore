@@ -374,3 +374,4 @@ appsettings.Development.Local.json
 /MediaProcessorLibrary/appsettings.Development.json
 /MediaProcessing/appsettings.Development.json
 DataProtection-Keys/*
+/MediaProcessing/DataProtection-Keys/key-a4f1e32a-acab-42c8-9212-ebff15fccb9f.xml
