@@ -1,4 +1,4 @@
-﻿################################################################################
+################################################################################
 # Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
 ################################################################################
 
@@ -373,5 +373,4 @@ FodyWeavers.xsd
 appsettings.Development.Local.json
 /MediaProcessorLibrary/appsettings.Development.json
 /MediaProcessing/appsettings.Development.json
-DataProtection-Keys/*
-/MediaProcessing/DataProtection-Keys/key-a4f1e32a-acab-42c8-9212-ebff15fccb9f.xml
+**/DataProtection-Keys/*.xml
