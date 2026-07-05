@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="WebpConverter.Tests/WebpConverter.Tests.csproj" Id="e0bf8668-5094-4fc3-9529-16735e611fa3" />
   <Project Path="WebpConverter/WebpConverter.csproj" />
 </Solution>

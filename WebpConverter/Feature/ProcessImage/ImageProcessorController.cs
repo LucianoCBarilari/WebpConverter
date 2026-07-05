@@ -45,27 +45,27 @@ public class ImageProcessorController(ProcessImageHandler handler) : ControllerB
             ErrorCode.ImageTooLarge => Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Image Too Large",
-                detail: result.Message ?? "La imagen supera el tamaño permitido."),
+                detail: result.Message ?? "The image exceeds the allowed maximum size."),
             ErrorCode.InvalidImage => Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Invalid Image",
-                detail: result.Message ?? "La imagen no es válida."),
+                detail: result.Message ?? "The image is invalid."),
             ErrorCode.CorruptedImage => Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Corrupted Image",
-                detail: result.Message ?? "La imagen está dañada."),
+                detail: result.Message ?? "The image is corrupted."),
             ErrorCode.Unauthorized => Problem(
                 statusCode: StatusCodes.Status403Forbidden,
                 title: "Forbidden",
-                detail: result.Message ?? "No tienes permisos para guardar la imagen."),
+                detail: result.Message ?? "You do not have permission to save the image."),
             ErrorCode.IOError => Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
                 title: "I/O Error",
-                detail: result.Message ?? "Error de escritura en disco."),
+                detail: result.Message ?? "Disk I/O error."),
             _ => Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
                 title: "Unexpected Error",
-                detail: result.Message ?? "Ocurrió un error inesperado.")
+                detail: result.Message ?? "An unexpected error occurred.")
         };
     }
 }

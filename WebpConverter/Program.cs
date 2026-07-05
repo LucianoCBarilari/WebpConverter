@@ -95,11 +95,11 @@ builder.Services.AddProblemDetails(options =>
 });
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddScoped<DeleteImageHandler>();
+builder.Services.AddScoped<IDeleteImageHandler, DeleteImageHandler>();
 builder.Services.AddScoped<ProcessImageHandler>();
-builder.Services.AddScoped<FileService>();
+builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<DirectoryService>();
-builder.Services.AddScoped<WebPCompressor>();
+builder.Services.AddScoped<IWebPCompressor, WebPCompressor>();
 
 // Add services to the container.
 builder.Services.AddOpenApi();
@@ -123,3 +123,5 @@ app.UseExceptionHandler();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

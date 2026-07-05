@@ -4,7 +4,7 @@ using WebpConverter.Common.Results;
 
 namespace WebpConverter.Infrastructure.FileSystem;
 
-public class FileService
+public class FileService : IFileService
 {
 
     /// <summary>
@@ -174,6 +174,7 @@ public class FileService
 
         string cleanName = regex.Replace(baseName, "-");
 
-        return $"{cleanName}_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+        return $"{cleanName}_{DateTime.Now:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N")[..6]}";
     }
 }

@@ -15,14 +15,16 @@ namespace WebpConverter.Feature.ProcessImage;
 /// </summary>
 public class ProcessImageHandler(
         IOptions<AppOptions> options,
-        WebPCompressor webPCompressor,
-        FileService fileService,
-        DeleteImageHandler deleteImageHandler)
+        IWebPCompressor webPCompressor,
+        IFileService fileService,
+        IDeleteImageHandler deleteImageHandler)
 {
     private readonly AppOptions _options = options.Value;
-    private readonly WebPCompressor _webPCompressor = webPCompressor;
-    private readonly FileService _fileService = fileService;
-    private readonly DeleteImageHandler _deleteImageHandler = deleteImageHandler;
+    private readonly IWebPCompressor _webPCompressor = webPCompressor;
+    private readonly IFileService _fileService = fileService;
+    private readonly IDeleteImageHandler _deleteImageHandler = deleteImageHandler;
+
+
 
     /// <summary>
     /// Executes the process image flow: validation, conversion, saving, and cleanup.
@@ -55,7 +57,7 @@ public class ProcessImageHandler(
         // 4. Generate secure filename
         string baseName = Path.GetFileNameWithoutExtension(command.FileName);
 
-        var generatedName = fileService.GenerateFileName(baseName);
+        var generatedName = _fileService.GenerateFileName(baseName);
         if (string.IsNullOrEmpty(generatedName))
             return ResultMedia<string>.Fail(ErrorCode.FileNameEmpty);
 
