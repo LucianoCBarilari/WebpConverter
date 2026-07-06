@@ -1,9 +1,7 @@
-# Final runtime image — Alpine for minimal size
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
+# Final runtime image — Ubuntu Chiseled (distroless-like, fewer CVEs than Alpine)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS base
 WORKDIR /app
 EXPOSE 8080
-# Required for .NET on Alpine — disables full ICU globalization (not needed for image processing)
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
