@@ -6,5 +6,6 @@ namespace WebpConverter.Feature.ProcessImage;
 public record ImageToProcess(
     Stream ImageStream,
     string FileName,
-    string? PreviousFileName = null
+    string? PreviousFileName = null,
+    string? Subfolder = null
 );

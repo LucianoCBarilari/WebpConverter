@@ -87,11 +87,6 @@ public class ProcessImageHandlerTests
         var validStream = new MemoryStream(ValidGifBytes);
         var command = new ImageToProcess(validStream, "photo.gif");
 
-        // Mock WebP Compressor to return a dummy stream
-        _webPCompressorMock
-            .Setup(x => x.ConvertToWebpAsync(It.IsAny<Stream>(), It.IsAny<int>()))
-            .ReturnsAsync(new MemoryStream(new byte[] { 1, 2, 3 })); // Fake compressed data
-
         // Mock FileService
         _fileServiceMock
             .Setup(x => x.GenerateFileName("photo"))
@@ -106,11 +101,11 @@ public class ProcessImageHandlerTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal("https://cdn.example.com/images/photo-12345.webp", result.Value);
+        Assert.Equal("https://cdn.example.com/images/photo-12345.gif", result.Value);
         
-        // Verifications
-        _webPCompressorMock.Verify(x => x.ConvertToWebpAsync(It.IsAny<Stream>(), 80), Times.Once);
-        var expectedPath = Path.Combine("/var/www/storage", "photo-12345.webp");
+        // GIF is passed through — compressor must NOT be called
+        _webPCompressorMock.Verify(x => x.ConvertToWebpAsync(It.IsAny<Stream>(), It.IsAny<int>()), Times.Never);
+        var expectedPath = Path.Combine("/var/www/storage", "photo-12345.gif");
         _fileServiceMock.Verify(x => x.SaveAsync(It.IsAny<Stream>(), expectedPath), Times.Once);
     }
 }

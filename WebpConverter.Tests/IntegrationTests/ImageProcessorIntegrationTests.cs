@@ -70,6 +70,6 @@ public class ImageProcessorIntegrationTests : IClassFixture<WebApplicationFactor
         // Assert
         var body = await response.Content.ReadAsStringAsync();
         Assert.True(response.IsSuccessStatusCode, $"Expected OK, but got {response.StatusCode}. Body: {body}");
-        Assert.Contains(".webp", body);
+        Assert.Contains(".gif", body); // GIFs are passed through without conversion
     }
 }

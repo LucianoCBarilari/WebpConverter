@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using SkiaSharp;
 using WebpConverter.Common.Enums;
 using WebpConverter.Common.Options;
 using WebpConverter.Common.Results;
@@ -49,10 +50,9 @@ public class ProcessImageHandler(
         if (command.ImageStream.CanSeek)
             command.ImageStream.Position = 0;
 
-        // 3. Compress/Convert stream to WebP
-        using var compressedStream = await _webPCompressor.ConvertToWebpAsync(
-            command.ImageStream,
-            _options.ImageCompressionQuality);
+        // 3. Detect format to decide processing path
+        var format = ImageValidator.DetectFormat(command.ImageStream);
+        bool isGif = format == SKEncodedImageFormat.Gif;
 
         // 4. Generate secure filename
         string baseName = Path.GetFileNameWithoutExtension(command.FileName);
@@ -61,21 +61,52 @@ public class ProcessImageHandler(
         if (string.IsNullOrEmpty(generatedName))
             return ResultMedia<string>.Fail(ErrorCode.FileNameEmpty);
 
-        var fullPath = Path.Combine(_options.StoragePath, $"{generatedName}.webp");
+        var storageFolder = string.IsNullOrWhiteSpace(command.Subfolder)
+            ? _options.StoragePath
+            : Path.Combine(_options.StoragePath, command.Subfolder);
+
+        var publicUrlFolder = string.IsNullOrWhiteSpace(command.Subfolder)
+            ? _options.PublicUrlPath
+            : $"{_options.PublicUrlPath}/{command.Subfolder}";
+
+        string extension;
+        Stream streamToSave;
+
+        if (isGif)
+        {
+            // GIF path: pass-through, preserve animation, no compression
+            extension = "gif";
+            streamToSave = command.ImageStream;
+        }
+        else
+        {
+            // WebP path: compress and convert
+            extension = "webp";
+            streamToSave = await _webPCompressor.ConvertToWebpAsync(
+                command.ImageStream,
+                _options.ImageCompressionQuality);
+        }
+
+        var fullPath = Path.Combine(storageFolder, $"{generatedName}.{extension}");
 
         // 5. Save to physical storage
-        var saveResult = await _fileService.SaveAsync(compressedStream, fullPath);
+        var saveResult = await _fileService.SaveAsync(streamToSave, fullPath);
+
+        if (!isGif)
+            streamToSave.Dispose();
+
         if (!saveResult.IsSuccess)
             return ResultMedia<string>.Fail(saveResult.Error ?? ErrorCode.SaveFailed);
 
         // 6. Clean up previous image if requested
         if (!string.IsNullOrWhiteSpace(command.PreviousFileName))
         {
-            _deleteImageHandler.Delete(_options.StoragePath, command.PreviousFileName);
+            _deleteImageHandler.Delete(storageFolder, command.PreviousFileName);
         }
 
         // 7. Generate and return the public web path
-        var publicPath = $"{_options.PublicUrlPath}/{generatedName}.webp";
+        var publicPath = $"{publicUrlFolder}/{generatedName}.{extension}";
         return ResultMedia<string>.Ok(publicPath, Operation.Saved);
     }
 }
+
