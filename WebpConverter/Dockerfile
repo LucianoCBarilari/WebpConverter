@@ -1,5 +1,5 @@
-# Final runtime image — Ubuntu Chiseled (distroless-like, fewer CVEs than Alpine)
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled AS base
+# Final runtime image — Azure Linux Distroless (Microsoft hardened, minimal CVEs)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-azurelinux3.0-distroless AS base
 WORKDIR /app
 EXPOSE 8080
 
