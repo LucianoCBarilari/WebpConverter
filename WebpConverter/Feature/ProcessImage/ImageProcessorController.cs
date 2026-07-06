@@ -10,6 +10,9 @@ public class CompressImageHttpRequest
 
     [FromForm]
     public string? FileName { get; set; }
+
+    [FromForm]
+    public string? Subfolder { get; set; }
 }
 
 [ApiController]
@@ -29,7 +32,7 @@ public class ImageProcessorController(ProcessImageHandler handler) : ControllerB
         }
 
         using var stream = request.File.OpenReadStream();
-        var command = new ImageToProcess(stream, request.FileName);
+        var command = new ImageToProcess(stream, request.FileName, Subfolder: request.Subfolder);
 
         var result = await handler.HandleAsync(command);
 
