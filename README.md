@@ -11,6 +11,8 @@ WebpConverter is a minimal HTTP API designed to receive image uploads, convert t
 ## Features
 
 - **WebP Conversion**: Converts raster images to WebP using [SkiaSharp](https://github.com/mono/SkiaSharp).
+- **GIF Pass-Through**: GIF files are stored as-is to preserve animation — no conversion applied.
+- **Subfolder Routing**: Each caller can route images into its own CDN subdirectory per request.
 - **Configurable Compression**: Quality level adjustable from 0 to 100.
 - **File Validation**: Validates file size and image integrity before processing.
 - **Previous File Cleanup**: Optionally deletes an existing image when replacing it.
@@ -21,12 +23,12 @@ WebpConverter is a minimal HTTP API designed to receive image uploads, convert t
 
 | Format | Supported |
 |--------|-----------|
-| JPEG / JPG | ✅ |
-| PNG | ✅ |
-| BMP | ✅ |
-| GIF | ✅ *(first frame only — animation is not preserved)* |
-| TIFF | ✅ |
-| WebP | ✅ *(re-compressed)* |
+| JPEG / JPG | ✅ → converted to WebP |
+| PNG | ✅ → converted to WebP |
+| BMP | ✅ → converted to WebP |
+| GIF | ✅ → passed through as-is *(animation preserved)* |
+| TIFF | ✅ → converted to WebP |
+| WebP | ✅ → re-compressed |
 | SVG | ❌ *(vector format, not supported)* |
 
 ## Quick Start
@@ -64,14 +66,16 @@ The API will be available at `http://your-host:8080`.
 |-------|----------|-------------|
 | `File` | ✅ | The image file to convert |
 | `FileName` | ❌ | Base name for the output file (no extension) |
-| `PreviousFileName` | ❌ | Name of a previously saved WebP file to delete on success |
+| `Subfolder` | ❌ | CDN subdirectory for this caller (e.g. `ecommerce`, `blog`) |
+| `PreviousFileName` | ❌ | Name of a previously saved file to delete on success |
 
 **Success — `200 OK`**
 
 Returns the public URL path of the saved image:
 
 ```
-"/images/my-photo-abc123.webp"
+"/images/my-photo-abc123.webp"      // raster formats
+"/images/ecommerce/banner-abc123.gif" // GIF with Subfolder
 ```
 
 > The path prefix (`/images`) is configured via `AppOptions__PublicUrlPath`. This is the URL segment your web server (Nginx, Caddy, etc.) should map to the physical storage directory.
