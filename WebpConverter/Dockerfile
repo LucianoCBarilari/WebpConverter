@@ -4,7 +4,7 @@ WORKDIR /app
 EXPOSE 8080
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["WebpConverter/WebpConverter.csproj", "WebpConverter/"]
