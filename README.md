@@ -16,6 +16,18 @@ WebpConverter is a gRPC service designed to receive image payloads, convert them
 - **Validation & Cleanup**: Validates file integrity and optionally deletes old images when replacing them.
 - **Flexible Setup**: Run via Docker or build from source using the .NET SDK.
 
+## Supported Input Formats
+
+| Format | Supported |
+|--------|-----------|
+| JPEG / JPG | ✅ → converted to WebP |
+| PNG | ✅ → converted to WebP |
+| BMP | ✅ → converted to WebP |
+| GIF | ✅ → passed through as-is *(animation preserved)* |
+| TIFF | ✅ → converted to WebP |
+| WebP | ✅ → re-compressed |
+| SVG | ❌ *(vector format, not supported)* |
+
 ## Quick Start
 
 You can run this project using Docker (recommended) or by building it locally with the .NET SDK.
