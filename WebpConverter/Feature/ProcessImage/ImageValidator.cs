@@ -49,4 +49,20 @@ public static class ImageValidator
             return ResultMedia.Fail(ErrorCode.CorruptedImage);
         }
     }
-}
+    /// <summary>
+    /// Detects the encoded format of the image stream using SkiaSharp codec.
+    /// Returns null if the format cannot be determined.
+    /// Resets the stream position before and after detection.
+    /// </summary>
+    public static SKEncodedImageFormat? DetectFormat(Stream imageStream)
+    {
+        if (imageStream == null || !imageStream.CanSeek)
+            return null;
+
+        imageStream.Position = 0;
+        using var skStream = new SKManagedStream(imageStream, disposeManagedStream: false);
+        using var codec = SKCodec.Create(skStream);
+        imageStream.Position = 0;
+        return codec?.EncodedFormat;
+    }
+}

@@ -1,0 +1,20 @@
+syntax = "proto3";
+option csharp_namespace = "WebpConverter";
+
+service ImageProcessor {
+  rpc ConvertImage (ConvertImageRequest) returns (ConvertImageReply);
+}
+
+message ConvertImageRequest {
+  bytes image_data     = 1;  // raw image bytes
+  string file_name     = 2;
+  string previous_file_name = 3; // optional, for replace
+  string subfolder     = 4; // optional, folder name for isolation
+}
+
+message ConvertImageReply {
+  bool   success       = 1;
+  string public_path   = 2;  // e.g. "/images/abc123.webp"
+  string error_code    = 3;  // empty if success
+  string error_message = 4;
+}

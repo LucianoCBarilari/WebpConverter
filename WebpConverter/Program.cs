@@ -4,11 +4,13 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using WebpConverter.Common.Options;
+using WebpConverter;
 using WebpConverter.Feature.DeleteImage;
 using WebpConverter.Feature.ProcessImage;
 using WebpConverter.Infrastructure;
 using WebpConverter.Infrastructure.Compression;
 using WebpConverter.Infrastructure.FileSystem;
+using WebpConverter.Infrastructure.Interceptors;
 using WebpConverter.Infrastructure.Logging;
 
 Log.Logger = new LoggerConfiguration()
@@ -16,7 +18,6 @@ Log.Logger = new LoggerConfiguration()
         .CreateBootstrapLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 var logOptions = builder.Configuration
     .GetSection(LogOptions.SectionName)
@@ -53,20 +54,6 @@ if (isDevelopment)
 Log.Logger = loggerConfiguration.CreateLogger();
 builder.Host.UseSerilog();
 
-var keysDirectory = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
-Directory.CreateDirectory(keysDirectory);
-
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
-    .SetApplicationName("MediaProccesing");
-
-// Configure Forwarded Headers for Nginx
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownIPNetworks.Clear();
-    options.KnownProxies.Clear();
-});
 
 builder.Services.AddOptions<AppOptions>()
       .BindConfiguration("AppOptions")
@@ -74,54 +61,26 @@ builder.Services.AddOptions<AppOptions>()
 builder.Services.AddSingleton<IValidateOptions<AppOptions>, AppOptionsValidator>();
 
 
-builder.Services.AddControllers();
-builder.Services.AddProblemDetails(options =>
-{
-
-    options.CustomizeProblemDetails = ctx =>
-    {
-        var problem = ctx.ProblemDetails;
-
-        problem.Instance = $"{ctx.HttpContext.Request.Method} {ctx.HttpContext.Request.Path}";
-        problem.Extensions["traceId"] = ctx.HttpContext.TraceIdentifier;
-        problem.Extensions["timestamp"] = DateTime.UtcNow.ToString("o");  // ISO 8601
-
-
-        if (!ctx.HttpContext.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment())
-        {
-            problem.Detail = null;
-        }
-    };
-});
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-
 builder.Services.AddScoped<IDeleteImageHandler, DeleteImageHandler>();
 builder.Services.AddScoped<ProcessImageHandler>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<DirectoryService>();
 builder.Services.AddScoped<IWebPCompressor, WebPCompressor>();
-
-// Add services to the container.
-builder.Services.AddOpenApi();
+builder.Services.AddGrpc(options =>
+{
+    options.Interceptors.Add<ExceptionInterceptor>();
+});
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/openapi/v1.json", "MediaProcessing v1");
-        options.RoutePrefix = string.Empty;
-    });
+    
 }
 
-app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
-app.UseExceptionHandler();
-app.MapControllers();
-
+app.MapGrpcService<ImageProcessorService>();
 app.Run();
 
 public partial class Program { }

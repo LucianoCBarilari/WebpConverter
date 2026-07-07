@@ -17,9 +17,7 @@ services:
       - LogOptions__FolderPath=/app/Logs
     volumes:
       - ${HOST_CDN_PATH:-./local-cdn}:/app/cdn-images
-      - webp-dp-keys:/app/DataProtection-Keys
       - webp-logs:/app/Logs
 
 volumes:
-  webp-dp-keys:
   webp-logs:

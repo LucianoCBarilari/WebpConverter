@@ -14,7 +14,7 @@ public class FileService : IFileService
     /// <returns>A dictionary where keys are file names and values are their full paths.</returns>
     public Dictionary<string, string> ListFiles(string folderPath)
     {
-        return ListFiles(folderPath, null);
+        return ListFiles(folderPath, string.Empty);
     }
     /// <summary>
     /// Lists files in the specified folder, optionally filtering by a search pattern.
