@@ -1,6 +1,10 @@
 using System.Net;
+using Grpc.Core;
+using Grpc.Net.Client;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
+using Google.Protobuf;
+using WebpConverter;
 
 namespace WebpConverter.Tests.IntegrationTests;
 
@@ -21,55 +25,72 @@ public class ImageProcessorIntegrationTests : IClassFixture<WebApplicationFactor
         _factory = factory;
     }
 
-    [Fact]
-    public async Task Post_CompressImage_WithMissingFile_ReturnsBadRequest()
+    private ImageProcessor.ImageProcessorClient CreateClient()
     {
-        // Arrange
-        var client = _factory.CreateClient();
-        using var content = new MultipartFormDataContent();
-
-        // Act - Send an empty multipart request (without the "File" IFormFile)
-        var response = await client.PostAsync("/api/image-processor", content);
-
-        // Assert - Should return 400 Bad Request due to Controller validation
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var handler = _factory.Server.CreateHandler();
+        var channel = GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions
+        {
+            HttpHandler = handler
+        });
+        return new ImageProcessor.ImageProcessorClient(channel);
     }
 
     [Fact]
-    public async Task Post_CompressImage_WithCorruptImage_ReturnsBadRequest()
+    public async Task ConvertImage_WithEmptyData_ReturnsError()
     {
         // Arrange
-        var client = _factory.CreateClient();
-        using var content = new MultipartFormDataContent();
-        var fileContent = new ByteArrayContent(new byte[] { 0x00, 0x01, 0x02 }); // Corrupted
-        content.Add(fileContent, "File", "corrupt.jpg");
+        var client = CreateClient();
+        var request = new ConvertImageRequest
+        {
+            FileName = "empty.jpg",
+            ImageData = ByteString.Empty
+        };
 
         // Act
-        var response = await client.PostAsync("/api/image-processor", content);
+        var response = await client.ConvertImageAsync(request);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        var body = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Corrupted Image", body);
+        Assert.False(response.Success);
+        Assert.Equal("InvalidStream", response.ErrorCode);
     }
 
     [Fact]
-    public async Task Post_CompressImage_WithValidImage_ReturnsOk()
+    public async Task ConvertImage_WithCorruptImage_ReturnsError()
     {
         // Arrange
-        var client = _factory.CreateClient();
-        using var content = new MultipartFormDataContent();
-        var fileContent = new ByteArrayContent(ValidGifBytes); 
-        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/gif");
-        content.Add(fileContent, "File", "valid_image.gif");
-        content.Add(new StringContent("valid_image"), "FileName");
+        var client = CreateClient();
+        var request = new ConvertImageRequest
+        {
+            FileName = "corrupt.jpg",
+            ImageData = ByteString.CopyFrom(new byte[] { 0x00, 0x01, 0x02 })
+        };
 
         // Act
-        var response = await client.PostAsync("/api/image-processor", content);
+        var response = await client.ConvertImageAsync(request);
 
         // Assert
-        var body = await response.Content.ReadAsStringAsync();
-        Assert.True(response.IsSuccessStatusCode, $"Expected OK, but got {response.StatusCode}. Body: {body}");
-        Assert.Contains(".gif", body); // GIFs are passed through without conversion
+        Assert.False(response.Success);
+        Assert.Equal("CorruptedImage", response.ErrorCode);
+    }
+
+    [Fact]
+    public async Task ConvertImage_WithValidImage_ReturnsSuccess()
+    {
+        // Arrange
+        var client = CreateClient();
+        var request = new ConvertImageRequest
+        {
+            FileName = "valid_image.gif",
+            ImageData = ByteString.CopyFrom(ValidGifBytes),
+            Subfolder = "test-app"
+        };
+
+        // Act
+        var response = await client.ConvertImageAsync(request);
+
+        // Assert
+        Assert.True(response.Success);
+        Assert.Contains(".gif", response.PublicPath);
+        Assert.True(string.IsNullOrEmpty(response.ErrorCode));
     }
 }
