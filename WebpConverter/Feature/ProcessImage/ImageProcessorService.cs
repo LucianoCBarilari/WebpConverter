@@ -1,7 +1,6 @@
 using Grpc.Core;
-using WebpConverter.Feature.ProcessImage;
 
-namespace WebpConverter;
+namespace WebpConverter.Feature.ProcessImage;
 
 public class ImageProcessorService(
     ProcessImageHandler processImageHandler, 
@@ -20,7 +19,7 @@ public class ImageProcessorService(
         );
 
         // Reuse existing business logic intact
-        var result = await processImageHandler.HandleAsync(imageToProcess);
+        var result = await processImageHandler.HandleAsync(imageToProcess, context.CancellationToken);
 
         // Map the domain result to the gRPC reply
         if (result.IsSuccess)

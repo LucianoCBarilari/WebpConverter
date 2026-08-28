@@ -9,6 +9,6 @@ public interface IFileService
     bool FileExist(string folderPath, string fileName);
     ResultMedia CreateFile(string folderPath, string fileName, string fileExtension);
     ResultMedia DeleteFile(string folderPath, string fileName);
-    Task<ResultMedia> SaveAsync(Stream content, string fullPath);
+    Task<ResultMedia> SaveAsync(Stream content, string fullPath, CancellationToken cancellationToken = default);
     string GenerateFileName(string baseName);
 }

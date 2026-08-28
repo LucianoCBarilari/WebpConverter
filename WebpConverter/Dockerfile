@@ -1,5 +1,5 @@
-# Final runtime image — Azure Linux Distroless (Microsoft hardened, minimal CVEs)
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-azurelinux3.0-distroless AS base
+# Final runtime image — Alpine Linux (Lightweight, shell included for debugging)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
 EXPOSE 8080
 
@@ -21,6 +21,5 @@ RUN dotnet publish "./WebpConverter.csproj" -c $BUILD_CONFIGURATION -o /app/publ
 # Final stage
 FROM base AS final
 WORKDIR /app
-USER $APP_UID
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "WebpConverter.dll"]
