@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using WebpConverter.Common.Options;
-using WebpConverter;
 using WebpConverter.Feature.DeleteImage;
 using WebpConverter.Feature.ProcessImage;
 using WebpConverter.Infrastructure;
@@ -70,6 +69,7 @@ builder.Services.AddGrpc(options =>
 {
     options.Interceptors.Add<ExceptionInterceptor>();
 });
+builder.Services.AddGrpcHealthChecks();
 
 var app = builder.Build();
 
@@ -81,6 +81,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 app.MapGrpcService<ImageProcessorService>();
+app.MapGrpcHealthChecksService();
 app.Run();
 
 public partial class Program { }

@@ -25,10 +25,10 @@ public class FileService : IFileService
     public Dictionary<string, string> ListFiles(string folderPath, string searchPattern)
     {
         if (string.IsNullOrWhiteSpace(folderPath))
-            return new();
+            return [];
 
         if (!Directory.Exists(folderPath))
-            return new();
+            return [];
 
         var files = string.IsNullOrWhiteSpace(searchPattern)
             ? Directory.GetFiles(folderPath)
@@ -75,7 +75,7 @@ public class FileService : IFileService
 
         try
         {
-            using var _ = File.Create(fullPath);
+            File.Create(fullPath).Dispose();
             return ResultMedia.Ok(Operation.Created);
         }
         catch (UnauthorizedAccessException)
@@ -128,8 +128,9 @@ public class FileService : IFileService
     /// </summary>
     /// <param name="content">The stream to save.</param>
     /// <param name="fullPath">The full path where the file will be saved.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>A <see cref="Result"/> indicating the outcome of the save operation.</returns>
-    public async Task<ResultMedia> SaveAsync(Stream content, string fullPath)
+    public async Task<ResultMedia> SaveAsync(Stream content, string fullPath, CancellationToken cancellationToken = default)
     {
         if (content == null)
             return ResultMedia.Fail(ErrorCode.InvalidStream);
@@ -147,7 +148,7 @@ public class FileService : IFileService
                 content.Position = 0;
 
             using var fileStream = File.Create(fullPath);
-            await content.CopyToAsync(fileStream);
+            await content.CopyToAsync(fileStream, cancellationToken);
 
             return ResultMedia.Ok(Operation.Saved);
         }

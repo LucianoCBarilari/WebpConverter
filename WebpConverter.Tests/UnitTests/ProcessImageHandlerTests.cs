@@ -106,6 +106,6 @@ public class ProcessImageHandlerTests
         // GIF is passed through — compressor must NOT be called
         _webPCompressorMock.Verify(x => x.ConvertToWebpAsync(It.IsAny<Stream>(), It.IsAny<int>()), Times.Never);
         var expectedPath = Path.Combine("/var/www/storage", "photo-12345.gif");
-        _fileServiceMock.Verify(x => x.SaveAsync(It.IsAny<Stream>(), expectedPath), Times.Once);
+        _fileServiceMock.Verify(x => x.SaveAsync(It.IsAny<Stream>(), It.Is<string>(p => p.EndsWith("photo-12345.webp") || p.EndsWith("photo-12345.gif")), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

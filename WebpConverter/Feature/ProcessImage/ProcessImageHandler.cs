@@ -31,8 +31,9 @@ public class ProcessImageHandler(
     /// Executes the process image flow: validation, conversion, saving, and cleanup.
     /// </summary>
     /// <param name="command">The payload containing the image stream and file metadata.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
     /// <returns>A ResultMedia containing the public URL path if successful, or an error code.</returns>
-    public async Task<ResultMedia<string>> HandleAsync(ImageToProcess command)
+    public async Task<ResultMedia<string>> HandleAsync(ImageToProcess command, CancellationToken cancellationToken = default)
     {
         if (command?.ImageStream == null)
             return ResultMedia<string>.Fail(ErrorCode.InvalidStream);
@@ -61,9 +62,14 @@ public class ProcessImageHandler(
         if (string.IsNullOrEmpty(generatedName))
             return ResultMedia<string>.Fail(ErrorCode.FileNameEmpty);
 
-        var storageFolder = string.IsNullOrWhiteSpace(command.Subfolder)
-            ? _options.StoragePath
-            : Path.Combine(_options.StoragePath, command.Subfolder);
+        var storagePathFull = Path.GetFullPath(_options.StoragePath);
+        var combinedPath = Path.GetFullPath(Path.Combine(_options.StoragePath, command.Subfolder ?? ""));
+
+        if (!combinedPath.StartsWith(storagePathFull, StringComparison.OrdinalIgnoreCase))
+        {
+            return ResultMedia<string>.Fail(ErrorCode.Unauthorized);
+        }
+        var storageFolder = combinedPath;
 
         var publicUrlFolder = string.IsNullOrWhiteSpace(command.Subfolder)
             ? _options.PublicUrlPath
@@ -84,13 +90,14 @@ public class ProcessImageHandler(
             extension = "webp";
             streamToSave = await _webPCompressor.ConvertToWebpAsync(
                 command.ImageStream,
-                _options.ImageCompressionQuality);
+                _options.ImageCompressionQuality,
+                cancellationToken);
         }
 
         var fullPath = Path.Combine(storageFolder, $"{generatedName}.{extension}");
 
         // 5. Save to physical storage
-        var saveResult = await _fileService.SaveAsync(streamToSave, fullPath);
+        var saveResult = await _fileService.SaveAsync(streamToSave, fullPath, cancellationToken);
 
         if (!isGif)
             streamToSave.Dispose();
